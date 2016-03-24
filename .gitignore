@@ -6,3 +6,17 @@
 .DS_Store
 /build
 /captures
+
+
+/app/crashlytics.properties
+/keys
+/app/private.properties
+/app/app.iml
+/app/apk
+
+# IDEA/Android Studio project files, because
+# the project can be imported from settings.gradle
+.idea/
+*.iml
+.idea/gradle.xml
+.idea/vcs.xml
