@@ -2,6 +2,8 @@ package com.tomoima.fetchtweet.modules;
 
 import android.support.v7.app.AppCompatActivity;
 
+import com.tomoima.fetchtweet.data.TweetDataRepository;
+
 import javax.inject.Singleton;
 
 import dagger.Component;
@@ -12,8 +14,9 @@ import dagger.Component;
 
 @Singleton
 @Component(
-        modules = {AppModule.class, DataModule.class}
+        modules = {AppModule.class, DataModule.class, PresenterModule.class}
 )
 public interface AppComponent {
     void inject(AppCompatActivity activity);
+    void inject(TweetDataRepository repository);
 }

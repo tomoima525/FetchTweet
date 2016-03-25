@@ -15,6 +15,7 @@ import io.fabric.sdk.android.Fabric;
  */
 public class ThisApplication extends Application {
 
+    private static final String userName="tomoaki_imai"; //TODO Temporary setting
     private AppComponent appComponent;
     @Override
     public void onCreate() {
@@ -32,5 +33,9 @@ public class ThisApplication extends Application {
 
     public AppComponent getAppComponent(){
         return appComponent;
+    }
+
+    public static String getUserName() {
+        return userName;
     }
 }

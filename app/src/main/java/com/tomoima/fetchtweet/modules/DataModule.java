@@ -3,6 +3,7 @@ package com.tomoima.fetchtweet.modules;
 import android.content.Context;
 
 import com.tomoima.fetchtweet.data.TweetDataRepository;
+import com.tomoima.fetchtweet.data.TweetDataRepositoryImpl;
 
 import dagger.Module;
 import dagger.Provides;
@@ -15,6 +16,6 @@ import dagger.Provides;
 public class DataModule {
     @Provides
     public TweetDataRepository provideTweetDataRepository(Context context){
-        return new TweetDataRepository(context);
+        return new TweetDataRepositoryImpl(context);
     }
 }
