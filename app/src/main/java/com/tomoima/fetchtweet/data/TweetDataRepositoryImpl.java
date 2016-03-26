@@ -5,7 +5,6 @@ import android.content.Context;
 import com.tomoima.fetchtweet.ThisApplication;
 import com.tomoima.fetchtweet.api.CustomTwitterApiClient;
 import com.tomoima.fetchtweet.models.TweetData;
-import com.tomoima.fetchtweet.modules.AppComponent;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterApiClient;
@@ -23,11 +22,12 @@ import javax.inject.Inject;
  * Created by tomoaki on 3/23/16.
  */
 public class TweetDataRepositoryImpl implements TweetDataRepository{
-    @Inject
-    ThisApplication application;
 
+    Context context;
+    @Inject
     public TweetDataRepositoryImpl(Context context){
-        ((AppComponent)context.getApplicationContext()).inject(this);
+        this.context = context;
+        ((ThisApplication)context.getApplicationContext()).getAppComponent().inject(this);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class TweetDataRepositoryImpl implements TweetDataRepository{
     public List<TweetData> getAll() {
         final List<TweetData> tweetDataList = new ArrayList<>();
         //TODO: setup correctly
-        CustomTwitterApiClient.getInstance().getCustomStatusesService().userTimeline(null, application.getUserName(), 200, null, null, false, false, false, true, new Callback<List<Tweet>>() {
+        CustomTwitterApiClient.getInstance().getCustomStatusesService().userTimeline(null, ((ThisApplication)context.getApplicationContext()).getUserName(), 200, null, null, false, false, false, true, new Callback<List<Tweet>>() {
             @Override
             public void success(Result<List<Tweet>> result) {
                 Tweet tweet = result.data.get(0);

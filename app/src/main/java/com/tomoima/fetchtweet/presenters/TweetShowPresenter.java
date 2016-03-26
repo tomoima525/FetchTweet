@@ -1,6 +1,6 @@
 package com.tomoima.fetchtweet.presenters;
 
-import com.tomoima.fetchtweet.data.TweetDataRepositoryImpl;
+import com.tomoima.fetchtweet.data.TweetDataRepository;
 import com.tomoima.fetchtweet.models.TweetData;
 
 import javax.inject.Inject;
@@ -10,10 +10,11 @@ import javax.inject.Inject;
  */
 public class TweetShowPresenter {
 
-    private TweetDataRepositoryImpl repository;
+    private TweetDataRepository repository;
     private Callback callback;
+
     @Inject
-    public TweetShowPresenter(TweetDataRepositoryImpl repository){
+    public TweetShowPresenter(TweetDataRepository repository){
         this.repository = repository;
     }
 
