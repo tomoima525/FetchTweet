@@ -22,6 +22,13 @@ try {
     throw new GradleException("Missing crashlytics.properties, check the crashlytics.properties file.");
 }
 
+Properties localProps = new Properties()
+try {
+    localProps.load(file('./private.properties').newDataInputStream())
+} catch (Exception ex) {
+    throw new GradleException("Missing private.properties, check the private.properties file.");
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
@@ -32,6 +39,9 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        manifestPlaceholders = [
+                fabricApiKey: "${localProps.getProperty("fabricApiKey")}"   // Set this in your ~/.gradle/gradle.properties or /app/private.properties as: fabricApiKey to use a env variable (and then set that value, of course)
+        ]
     }
     buildTypes {
         debug {
