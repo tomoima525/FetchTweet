@@ -1,6 +1,7 @@
 package com.tomoima.fetchtweet.modules;
 
-import android.support.v7.app.AppCompatActivity;
+import com.tomoima.fetchtweet.data.TweetDataRepository;
+import com.tomoima.fetchtweet.ui.TopActivity;
 
 import javax.inject.Singleton;
 
@@ -12,8 +13,9 @@ import dagger.Component;
 
 @Singleton
 @Component(
-        modules = {AppModule.class, DataModule.class}
+        modules = {AppModule.class, DataModule.class, PresenterModule.class}
 )
 public interface AppComponent {
-    void inject(AppCompatActivity activity);
+    void inject(TopActivity activity);
+    void inject(TweetDataRepository repository);
 }

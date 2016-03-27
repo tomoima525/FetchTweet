@@ -5,17 +5,24 @@ import android.app.Application;
 import com.tomoima.fetchtweet.modules.AppComponent;
 import com.tomoima.fetchtweet.modules.AppModule;
 import com.tomoima.fetchtweet.modules.DaggerAppComponent;
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by tomoaki on 3/23/16.
  */
 public class ThisApplication extends Application {
 
+    private static final String userName="tomoaki_imai"; //TODO Temporary setting
     private AppComponent appComponent;
     @Override
     public void onCreate() {
         super.onCreate();
         initializeInjector();
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(BuildConfig.TWITTER_KEY, BuildConfig.TWITTER_SECRET);
+        Fabric.with(this, new Twitter(authConfig));
     }
 
     private void initializeInjector(){
@@ -26,5 +33,9 @@ public class ThisApplication extends Application {
 
     public AppComponent getAppComponent(){
         return appComponent;
+    }
+
+    public static String getUserName() {
+        return userName;
     }
 }
