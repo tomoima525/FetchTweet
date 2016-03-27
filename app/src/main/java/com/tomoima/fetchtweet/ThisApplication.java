@@ -2,6 +2,7 @@ package com.tomoima.fetchtweet;
 
 import android.app.Application;
 
+import com.tomoima.debot.DebotConfigurator;
 import com.tomoima.fetchtweet.modules.AppComponent;
 import com.tomoima.fetchtweet.modules.AppModule;
 import com.tomoima.fetchtweet.modules.DaggerAppComponent;
@@ -24,6 +25,7 @@ public class ThisApplication extends Application {
         TwitterAuthConfig authConfig = new TwitterAuthConfig(BuildConfig.TWITTER_KEY, BuildConfig.TWITTER_SECRET);
         Fabric.with(this, new Twitter(authConfig));
         Timber.plant(new CustomTree());
+        DebotConfigurator.configureWithDefault(this);
     }
 
     private void initializeInjector(){
