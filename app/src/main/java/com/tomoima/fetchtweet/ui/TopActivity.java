@@ -22,6 +22,8 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import javax.inject.Inject;
 
+import timber.log.Timber;
+
 public class TopActivity extends AppCompatActivity implements TweetShowPresenter.Callback {
 
     @Inject
@@ -55,6 +57,7 @@ public class TopActivity extends AppCompatActivity implements TweetShowPresenter
                 Log.d("TwitterKit", "Login with Twitter failure", e);
             }
         });
+        Timber.d("¥Initialization done");
     }
 
     @Override

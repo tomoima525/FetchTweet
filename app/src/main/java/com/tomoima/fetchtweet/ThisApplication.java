@@ -9,7 +9,8 @@ import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 
 import io.fabric.sdk.android.Fabric;
-
+import timber.log.Timber;
+import static timber.log.Timber.DebugTree;
 /**
  * Created by tomoaki on 3/23/16.
  */
@@ -23,6 +24,7 @@ public class ThisApplication extends Application {
         initializeInjector();
         TwitterAuthConfig authConfig = new TwitterAuthConfig(BuildConfig.TWITTER_KEY, BuildConfig.TWITTER_SECRET);
         Fabric.with(this, new Twitter(authConfig));
+        Timber.plant(new DebugTree());
     }
 
     private void initializeInjector(){
