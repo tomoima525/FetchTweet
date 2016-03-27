@@ -10,7 +10,6 @@ import com.twitter.sdk.android.core.TwitterAuthConfig;
 
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
-import static timber.log.Timber.DebugTree;
 /**
  * Created by tomoaki on 3/23/16.
  */
@@ -24,7 +23,7 @@ public class ThisApplication extends Application {
         initializeInjector();
         TwitterAuthConfig authConfig = new TwitterAuthConfig(BuildConfig.TWITTER_KEY, BuildConfig.TWITTER_SECRET);
         Fabric.with(this, new Twitter(authConfig));
-        Timber.plant(new DebugTree());
+        Timber.plant(new CustomTree());
     }
 
     private void initializeInjector(){
@@ -39,5 +38,19 @@ public class ThisApplication extends Application {
 
     public static String getUserName() {
         return userName;
+    }
+
+    private static class CustomTree extends Timber.DebugTree {
+
+        @Override
+        protected void log(int priority, String tag, String message, Throwable t) {
+            StackTraceElement trace = new Throwable().getStackTrace()[7];// something strange thing is happening with stack trace
+            String className = trace.getClassName();
+            String methodName = trace.getMethodName();
+            String caller = trace.getFileName() + ":" + trace.getLineNumber();
+            StringBuilder formatStrBldr = new StringBuilder(message);
+            formatStrBldr.append(String.format(" -- at %s.%s(%s)\n", className, methodName, caller));
+            super.log(priority, tag, formatStrBldr.toString(), t);
+        }
     }
 }
