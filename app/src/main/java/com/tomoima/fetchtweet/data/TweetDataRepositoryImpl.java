@@ -21,7 +21,7 @@ import javax.inject.Inject;
 /**
  * Created by tomoaki on 3/23/16.
  */
-public class TweetDataRepositoryImpl implements TweetDataRepository{
+public class TweetDataRepositoryImpl extends TweetDataRepository{
 
     Context context;
     @Inject
@@ -42,6 +42,7 @@ public class TweetDataRepositoryImpl implements TweetDataRepository{
                 if(tweet == null) return;
                 tweetData.setId(tweet.id);
                 tweetData.setMessage(tweet.text);
+                cb.fetchTweet(tweetData);
             }
 
             public void failure(TwitterException exception) {
@@ -78,4 +79,5 @@ public class TweetDataRepositoryImpl implements TweetDataRepository{
     public void putTweetData(TweetData data) {
 
     }
+
 }
