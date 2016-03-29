@@ -27,7 +27,6 @@ public class TweetDataRepositoryImpl extends TweetDataRepository{
     @Inject
     public TweetDataRepositoryImpl(Context context){
         this.context = context;
-        ((ThisApplication)context.getApplicationContext()).getAppComponent().inject(this);
     }
 
     @Override
