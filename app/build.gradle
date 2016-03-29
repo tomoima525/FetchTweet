@@ -65,8 +65,8 @@ dependencies {
     compile('com.twitter.sdk.android:twitter:1.13.0@aar') {
         transitive = true;
     }
-    debugCompile 'com.tomoima.debot:debot:1.0.2'
-    releaseCompile 'com.tomoima.debot:debot-no-op:1.0.2'
+    debugCompile 'com.tomoima.debot:debot:1.1.0'
+    releaseCompile 'com.tomoima.debot:debot-no-op:1.1.0'
     compile 'com.jakewharton.timber:timber:4.1.1'
     provided 'org.projectlombok:lombok:1.16.8'
 }

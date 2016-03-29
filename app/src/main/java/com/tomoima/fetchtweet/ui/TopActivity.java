@@ -4,13 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tomoima.debot.Debot;
 import com.tomoima.fetchtweet.R;
 import com.tomoima.fetchtweet.ThisApplication;
 import com.tomoima.fetchtweet.data.TweetDataRepositoryImpl;
@@ -69,26 +66,8 @@ public class TopActivity extends AppCompatActivity implements TweetShowPresenter
         if(tweetShowPresenter != null) {
             tweetShowPresenter.setCallback(this);
         }
-        Debot.onResume(this);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Debot.onPause(this);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Debot.onCreateOptionsMenu(menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Debot.onOptionsItemSelected(item);
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void updateView(TweetData tweetData) {
