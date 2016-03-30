@@ -3,12 +3,10 @@ package com.tomoima.fetchtweet.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tomoima.fetchtweet.R;
-import com.tomoima.fetchtweet.data.TweetDataRepositoryImpl;
 import com.tomoima.fetchtweet.models.TweetData;
 import com.tomoima.fetchtweet.presenters.TweetShowPresenter;
 import com.twitter.sdk.android.core.Callback;
@@ -19,12 +17,15 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import javax.inject.Inject;
 
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class TopActivity extends BaseActivity implements TweetShowPresenter.Callback {
 
     @Inject
     TweetShowPresenter tweetShowPresenter;
+
     private TwitterLoginButton loginButton;
 
     @Override
@@ -32,13 +33,16 @@ public class TopActivity extends BaseActivity implements TweetShowPresenter.Call
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top);
         getAppComponent().inject(this);
-        tweetShowPresenter = new TweetShowPresenter(new TweetDataRepositoryImpl(this));
-        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tweetShowPresenter.getTweet(713229518278828032L);
-            }
-        });
+
+        findViewById(R.id.button).setOnClickListener(
+                v -> {
+                    //tweetShowPresenter.getTweet(713229518278828032L);
+                    tweetShowPresenter.getObservableTweet(713229518278828032L)
+                            .subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(tweetData -> updateView(tweetData));
+                }
+        );
 
         loginButton =(TwitterLoginButton) findViewById(R.id.twitter_login_button);
         loginButton.setCallback(new Callback<TwitterSession>() {
@@ -54,15 +58,15 @@ public class TopActivity extends BaseActivity implements TweetShowPresenter.Call
                 Log.d("TwitterKit", "Login with Twitter failure", e);
             }
         });
-        Timber.d("¥Initialization done");
+        Timber.d("¥Initialization done:" + (tweetShowPresenter != null));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(tweetShowPresenter != null) {
-            tweetShowPresenter.setCallback(this);
-        }
+//        if(tweetShowPresenter != null) {
+//            tweetShowPresenter.setCallback(this);
+//        }
     }
 
 

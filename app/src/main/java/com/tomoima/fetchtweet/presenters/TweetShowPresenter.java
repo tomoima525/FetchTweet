@@ -1,17 +1,16 @@
 package com.tomoima.fetchtweet.presenters;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.tomoima.fetchtweet.data.TweetDataRepository;
 import com.tomoima.fetchtweet.models.TweetData;
 
 import javax.inject.Inject;
 
+import rx.Observable;
+
 /**
  * Created by tomoaki on 3/24/16.
  */
-public class TweetShowPresenter implements TweetDataRepository.TweetDataRepositoryCallback {
+public class TweetShowPresenter/* implements TweetDataRepository.TweetDataRepositoryCallback*/ {
 
     private TweetDataRepository repository;
     private Callback callback;
@@ -19,7 +18,7 @@ public class TweetShowPresenter implements TweetDataRepository.TweetDataReposito
     @Inject
     public TweetShowPresenter(TweetDataRepository repository){
         this.repository = repository;
-        this.repository.setCallback(this);
+        //this.repository.setCallback(this);
     }
 
     public void setCallback(Callback callback){
@@ -36,15 +35,20 @@ public class TweetShowPresenter implements TweetDataRepository.TweetDataReposito
         }).start();
     }
 
-    @Override
-    public void fetchTweet(final TweetData data) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                callback.updateView(data);
-            }
-        });
+    public Observable<TweetData> getObservableTweet(final long id){
+        return repository.getObservable(id);
     }
+
+
+//    @Override
+//    public void fetchTweet(final TweetData data) {
+//        new Handler(Looper.getMainLooper()).post(new Runnable() {
+//            @Override
+//            public void run() {
+//                callback.updateView(data);
+//            }
+//        });
+//    }
 
     public interface Callback {
         void updateView(TweetData tweetData);

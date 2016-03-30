@@ -3,7 +3,6 @@ package com.tomoima.fetchtweet.data;
 import android.content.Context;
 
 import com.tomoima.fetchtweet.ThisApplication;
-import com.tomoima.fetchtweet.api.CustomTwitterApiClient;
 import com.tomoima.fetchtweet.models.TweetData;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
@@ -17,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import rx.Observable;
 
 /**
  * Created by tomoaki on 3/23/16.
@@ -52,10 +53,16 @@ public class TweetDataRepositoryImpl extends TweetDataRepository{
     }
 
     @Override
+    public Observable<TweetData> getObservable(long id) {
+        return null;
+    }
+
+    @Override
     public List<TweetData> getAll() {
         final List<TweetData> tweetDataList = new ArrayList<>();
         //TODO: setup correctly
-        CustomTwitterApiClient.getInstance().getCustomStatusesService().userTimeline(null, ((ThisApplication)context.getApplicationContext()).getUserName(), 200, null, null, false, false, false, true, new Callback<List<Tweet>>() {
+        TwitterApiClient twitterApiClient = TwitterCore.getInstance().getApiClient();
+        twitterApiClient.getStatusesService().userTimeline(null, ((ThisApplication)context.getApplicationContext()).getUserName(), 200, null, null, false, false, false, true, new Callback<List<Tweet>>() {
             @Override
             public void success(Result<List<Tweet>> result) {
                 Tweet tweet = result.data.get(0);

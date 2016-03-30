@@ -18,6 +18,7 @@ import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
 import retrofit.http.GET;
 import retrofit.http.Query;
+import rx.Observable;
 
 /**
  * Created by tomoaki on 3/24/16.
@@ -78,6 +79,12 @@ public class CustomTwitterApiClient extends TwitterApiClient {
                           @Query("contributor_details") Boolean var8,
                           @Query("include_rts") Boolean var9,
                           Callback<List<Tweet>> var10);
+
+        @GET("/1.1/statuses/show.json")
+        Observable<Tweet> show(@Query("id") Long var1,
+                                       @Query("trim_user") Boolean var2,
+                                       @Query("include_my_retweet") Boolean var3,
+                                       @Query("include_entities") Boolean var4);
 
     }
 }

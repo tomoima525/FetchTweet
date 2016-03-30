@@ -4,12 +4,15 @@ import com.tomoima.fetchtweet.models.TweetData;
 
 import java.util.List;
 
+import rx.Observable;
+
 /**
  * Created by tomoaki on 3/24/16.
  */
 public abstract class TweetDataRepository {
     TweetDataRepositoryCallback cb;
     public abstract TweetData get(long id);
+    public abstract Observable<TweetData> getObservable(long id);
     public abstract List<TweetData> getAll();
     abstract void putTweetData(TweetData data);
 

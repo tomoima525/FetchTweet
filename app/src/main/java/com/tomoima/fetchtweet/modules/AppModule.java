@@ -3,6 +3,9 @@ package com.tomoima.fetchtweet.modules;
 import android.app.Application;
 import android.content.Context;
 
+import com.twitter.sdk.android.core.TwitterApiClient;
+import com.twitter.sdk.android.core.TwitterCore;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -24,5 +27,11 @@ public class AppModule {
     @Singleton
     Context provideApplicationContext(){
         return application.getApplicationContext();
+    }
+
+    @Provides
+    @Singleton
+    TwitterApiClient provideTwitterApiClient(){
+        return TwitterCore.getInstance().getApiClient();
     }
 }

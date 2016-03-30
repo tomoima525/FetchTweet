@@ -20,6 +20,6 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected AppComponent getAppComponent(){
-        return ((ThisApplication)getApplicationContext()).getAppComponent();
+        return ((ThisApplication)getApplication()).getAppComponent();
     }
 }

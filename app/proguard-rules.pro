@@ -28,3 +28,5 @@
 -keepclasseswithmembers class * {
     @retrofit.http.* <methods>;
 }
+#RetroLambda
+-dontwarn java.lang.invoke.*
