@@ -15,13 +15,16 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
-public class TopActivity extends BaseActivity implements TweetShowPresenter.Callback {
+public class TopActivity extends BaseActivity /*implements TweetShowPresenter.Callback*/ {
 
     @Inject
     TweetShowPresenter tweetShowPresenter;
@@ -37,10 +40,34 @@ public class TopActivity extends BaseActivity implements TweetShowPresenter.Call
         findViewById(R.id.button).setOnClickListener(
                 v -> {
                     //tweetShowPresenter.getTweet(713229518278828032L);
-                    tweetShowPresenter.getObservableTweet(713229518278828032L)
+                    tweetShowPresenter.getTweet(713229518278828032L)
                             .subscribeOn(Schedulers.newThread())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(tweetData -> updateView(tweetData));
+                }
+        );
+
+        findViewById(R.id.button_2).setOnClickListener(
+                v -> {
+                    tweetShowPresenter.getTweets(713229518278828032L)
+                            .subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Subscriber<List<TweetData>>() {
+                                @Override
+                                public void onCompleted() {
+                                    Timber.d("¥¥ done");
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    Timber.d("¥¥ e " + e.getMessage());
+                                }
+
+                                @Override
+                                public void onNext(List<TweetData> tweetDatas) {
+                                    Timber.d("¥¥ size " + tweetDatas.size());
+                                }
+                            });
                 }
         );
 
@@ -69,8 +96,6 @@ public class TopActivity extends BaseActivity implements TweetShowPresenter.Call
 //        }
     }
 
-
-    @Override
     public void updateView(TweetData tweetData) {
         String message = tweetData.getMessage();
         ((TextView)findViewById(R.id.result)).setText(message);

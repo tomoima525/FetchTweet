@@ -69,22 +69,21 @@ public class CustomTwitterApiClient extends TwitterApiClient {
 
     public interface CustomStatusesService {
         @GET("/1.1/statuses/user_timeline.json")
-        void userTimeline(@Query("user_id") Long var1,
-                          @Query("screen_name") String var2,
-                          @Query("count") Integer var3,
-                          @Query("since_id") Long var4,
-                          @Query("max_id") Long var5,
-                          @Query("trim_user") Boolean var6,
-                          @Query("exclude_replies") Boolean var7,
-                          @Query("contributor_details") Boolean var8,
-                          @Query("include_rts") Boolean var9,
-                          Callback<List<Tweet>> var10);
+        Observable<List<Tweet>> userTimeline(@Query("user_id") Long user_id,
+                          @Query("screen_name") String screen_name,
+                          @Query("count") Integer count,
+                          @Query("since_id") Long since_id,
+                          @Query("max_id") Long max_id,
+                          @Query("trim_user") Boolean trim_user,
+                          @Query("exclude_replies") Boolean exclude_replies,
+                          @Query("contributor_details") Boolean contributor_details,
+                          @Query("include_rts") Boolean include_rts);
 
         @GET("/1.1/statuses/show.json")
-        Observable<Tweet> show(@Query("id") Long var1,
-                                       @Query("trim_user") Boolean var2,
-                                       @Query("include_my_retweet") Boolean var3,
-                                       @Query("include_entities") Boolean var4);
+        Observable<Tweet> show(@Query("id") Long id,
+                                       @Query("trim_user") Boolean trim_user,
+                                       @Query("include_my_retweet") Boolean include_my_retweet,
+                                       @Query("include_entities") Boolean include_entities);
 
     }
 }

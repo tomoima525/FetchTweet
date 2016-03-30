@@ -2,6 +2,7 @@ package com.tomoima.fetchtweet.data;
 
 import android.content.Context;
 
+import com.tomoima.fetchtweet.ThisApplication;
 import com.tomoima.fetchtweet.api.CustomTwitterApiClient;
 import com.tomoima.fetchtweet.models.TweetData;
 
@@ -25,12 +26,7 @@ public class CustomTweetDataRepositoryImpl extends TweetDataRepository {
     }
 
     @Override
-    public TweetData get(long id) {
-        return null;
-    }
-
-    @Override
-    public Observable<TweetData> getObservable(long id) {
+    public Observable<TweetData> get(long id) {
         CustomTwitterApiClient client = CustomTwitterApiClient.getInstance();
         return Observable.create(subscriber -> {
             try {
@@ -53,8 +49,33 @@ public class CustomTweetDataRepositoryImpl extends TweetDataRepository {
     }
 
     @Override
-    public List<TweetData> getAll() {
-        return null;
+    public Observable<List<TweetData>> getAll(long maxId) {
+        CustomTwitterApiClient client = CustomTwitterApiClient.getInstance();
+        return Observable.create(subscriber -> {
+            try{
+                subscriber.onNext(client.getCustomStatusesService()
+                        .userTimeline(
+                                null,
+                                ((ThisApplication)context.getApplicationContext()).getUserName(),
+                                200,
+                                1L,
+                                maxId,
+                                false,
+                                false,
+                                false,
+                                true)
+                        .flatMap(Observable::from)
+                        .map( tweet -> {
+                            TweetData data = new TweetData();
+                            data.setMessage(tweet.text);
+                            data.setId(tweet.id);
+                            data.setName(tweet.user.screenName);
+                            return data;
+                        }).toList().toBlocking().single());
+            } catch (Exception e) {
+                subscriber.onError(e);
+            }
+        });
     }
 
     @Override

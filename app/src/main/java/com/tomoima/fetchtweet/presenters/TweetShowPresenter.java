@@ -3,6 +3,8 @@ package com.tomoima.fetchtweet.presenters;
 import com.tomoima.fetchtweet.data.TweetDataRepository;
 import com.tomoima.fetchtweet.models.TweetData;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import rx.Observable;
@@ -13,7 +15,7 @@ import rx.Observable;
 public class TweetShowPresenter/* implements TweetDataRepository.TweetDataRepositoryCallback*/ {
 
     private TweetDataRepository repository;
-    private Callback callback;
+//    private Callback callback;
 
     @Inject
     public TweetShowPresenter(TweetDataRepository repository){
@@ -21,22 +23,26 @@ public class TweetShowPresenter/* implements TweetDataRepository.TweetDataReposi
         //this.repository.setCallback(this);
     }
 
-    public void setCallback(Callback callback){
-        this.callback = callback;
+//    public void setCallback(Callback callback){
+//        this.callback = callback;
+//    }
+
+//    public void getTweet(final long id){
+//        //TODO use rxjava
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                repository.get(id);
+//            }
+//        }).start();
+//    }
+
+    public Observable<TweetData> getTweet(final long id){
+        return repository.get(id);
     }
 
-    public void getTweet(final long id){
-        //TODO use rxjava
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                repository.get(id);
-            }
-        }).start();
-    }
-
-    public Observable<TweetData> getObservableTweet(final long id){
-        return repository.getObservable(id);
+    public Observable<List<TweetData>> getTweets(final long maxId){
+        return repository.getAll(maxId);
     }
 
 
@@ -50,7 +56,7 @@ public class TweetShowPresenter/* implements TweetDataRepository.TweetDataReposi
 //        });
 //    }
 
-    public interface Callback {
-        void updateView(TweetData tweetData);
-    }
+//    public interface Callback {
+//        void updateView(TweetData tweetData);
+//    }
 }
