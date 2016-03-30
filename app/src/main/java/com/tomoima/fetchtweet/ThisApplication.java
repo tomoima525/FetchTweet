@@ -46,7 +46,7 @@ public class ThisApplication extends Application {
 
         @Override
         protected void log(int priority, String tag, String message, Throwable t) {
-            StackTraceElement trace = new Throwable().getStackTrace()[7];// something strange thing is happening with stack trace
+            StackTraceElement trace = new Throwable().getStackTrace()[5];// something strange thing is happening with stack trace
             String className = trace.getClassName();
             String methodName = trace.getMethodName();
             String caller = trace.getFileName() + ":" + trace.getLineNumber();
