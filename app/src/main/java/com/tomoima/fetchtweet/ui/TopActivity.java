@@ -24,7 +24,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
-public class TopActivity extends BaseActivity /*implements TweetShowPresenter.Callback*/ {
+public class TopActivity extends BaseActivity {
 
     @Inject
     TweetShowPresenter tweetShowPresenter;
@@ -39,7 +39,6 @@ public class TopActivity extends BaseActivity /*implements TweetShowPresenter.Ca
 
         findViewById(R.id.button).setOnClickListener(
                 v -> {
-                    //tweetShowPresenter.getTweet(713229518278828032L);
                     tweetShowPresenter.getTweet(713229518278828032L)
                             .subscribeOn(Schedulers.newThread())
                             .observeOn(AndroidSchedulers.mainThread())
@@ -87,15 +86,7 @@ public class TopActivity extends BaseActivity /*implements TweetShowPresenter.Ca
         });
         Timber.d("¥Initialization done:" + (tweetShowPresenter != null));
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        if(tweetShowPresenter != null) {
-//            tweetShowPresenter.setCallback(this);
-//        }
-    }
-
+    
     public void updateView(TweetData tweetData) {
         String message = tweetData.getMessage();
         ((TextView)findViewById(R.id.result)).setText(message);
