@@ -2,14 +2,20 @@ package com.tomoima.fetchtweet.models;
 
 import java.util.Date;
 
-import lombok.Data;
+import io.realm.RealmObject;
+import io.realm.annotations.Required;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by tomoaki on 3/24/16.
  */
-@Data
-public class TweetData {
+@Getter
+@Setter
+public class TweetData extends RealmObject {
+    @Required
     private long id;
+    @Required
     private String message;
     private Date date;
     private int retweetCount;
