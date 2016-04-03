@@ -7,6 +7,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tomoima.fetchtweet.R;
+import com.tomoima.fetchtweet.Task.TweetLoader;
+import com.tomoima.fetchtweet.ThisApplication;
 import com.tomoima.fetchtweet.models.TweetData;
 import com.tomoima.fetchtweet.presenters.TweetShowPresenter;
 import com.twitter.sdk.android.core.Callback;
@@ -15,11 +17,8 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
@@ -48,25 +47,26 @@ public class TopActivity extends BaseActivity {
 
         findViewById(R.id.button_2).setOnClickListener(
                 v -> {
-                    tweetShowPresenter.getTweets(713229518278828032L)
-                            .subscribeOn(Schedulers.newThread())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Subscriber<List<TweetData>>() {
-                                @Override
-                                public void onCompleted() {
-                                    Timber.d("¥¥ done");
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    Timber.d("¥¥ e " + e.getMessage());
-                                }
-
-                                @Override
-                                public void onNext(List<TweetData> tweetDatas) {
-                                    Timber.d("¥¥ size " + tweetDatas.size());
-                                }
-                            });
+                    new Thread(new TweetLoader(ThisApplication.getUserName(),-1L,-1L)).start();
+//                    tweetShowPresenter.getTweets(713229518278828032L)
+//                            .subscribeOn(Schedulers.newThread())
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            .subscribe(new Subscriber<List<TweetData>>() {
+//                                @Override
+//                                public void onCompleted() {
+//                                    Timber.d("¥¥ done");
+//                                }
+//
+//                                @Override
+//                                public void onError(Throwable e) {
+//                                    Timber.d("¥¥ e " + e.getMessage());
+//                                }
+//
+//                                @Override
+//                                public void onNext(List<TweetData> tweetDatas) {
+//                                    Timber.d("¥¥ size " + tweetDatas.size());
+//                                }
+//                            });
                 }
         );
 
