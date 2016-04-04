@@ -26,10 +26,12 @@ public class TweetLoader implements Runnable {
         this.userName = userName;
         this.sinceId = sinceId;
         this.maxId = maxId;
-        realm = Realm.getDefaultInstance();
+        Timber.d("¥¥ thread " + Thread.currentThread().getName());
+
     }
 
     public Observable<Observable<List<TweetData>>> fetchMultipleTweets(long sinceId, long maxId) {
+        Timber.d("¥¥ since " + sinceId + " max " + maxId );
         CustomTwitterApiClient client = CustomTwitterApiClient.getInstance();
         final Long tempMaxId = maxId == -1L ? null : maxId;
         final Long tempSinceId = sinceId == -1L ? null: sinceId;
@@ -53,7 +55,6 @@ public class TweetLoader implements Runnable {
                             data.setName(tweet.user.screenName);
                             return data;
                         }).toList());
-                Timber.d("¥¥ network");
                 subscriber.onCompleted();
             } catch (Exception e){
                 subscriber.onError(e);
@@ -85,13 +86,37 @@ public class TweetLoader implements Runnable {
                                 if(isEmpty){
                                     subscriber.onCompleted();
                                 } else {
-                                    Observable<TweetData> tweetDataObservable = tweetDataListObservable.flatMap(Observable::from);
-                                    tweetDataObservable.subscribe(tweetData -> {
-                                        //Realmに格納
+                                    tweetDataListObservable.subscribe(tweetDataList -> {
+                                        realm = Realm.getDefaultInstance();
+                                        Timber.d("¥¥ data" + tweetDataList.size());
+                                        Timber.d("¥¥ thread " + Thread.currentThread().getName());
+                                        //TODO: THIS BLOCKS NETWORK THREAD, SO CREATE ANOTHTER THREAD!
                                         realm.beginTransaction();
-                                        realm.copyToRealm(tweetData);
+                                        for(TweetData tweetData: tweetDataList){
+                                            System.out.println("¥¥ data" + tweetData.getMessage());
+                                            TweetData data = realm.createObject(TweetData.class);
+                                            data.setId(tweetData.getId());
+                                            data.setMessage(tweetData.getMessage());
+                                            //realm.copyToRealm(data);
+                                        }
                                         realm.commitTransaction();
+                                        realm.close();
                                     });
+                                    Observable<TweetData> tweetDataObservable
+                                            = tweetDataListObservable.flatMap(Observable::from);
+//                                    tweetDataObservable.map(tweetData1 -> {
+//                                        Timber.d("¥¥ data? " + tweetData1.getMessage());
+//                                        return  tweetData1;
+//                                    }).subscribe(tweetData -> {
+//                                        //Realmに格納
+//                                        realm.beginTransaction();
+//                                        TweetData data = realm.createObject(TweetData.class);
+//                                        data.setId(tweetData.getId());
+//                                        data.setMessage(tweetData.getMessage());
+//                                        Timber.d("¥¥ data " + tweetData.getMessage());
+//                                        //realm.copyToRealm(tweetData);
+//                                        realm.commitTransaction();
+//                                    });
                                     //最後のid取得
                                     tweetDataObservable.last().subscribe(tweetData -> {
                                        long nextSinceId = tweetData.getId();
@@ -112,7 +137,7 @@ public class TweetLoader implements Runnable {
             @Override
             public void onCompleted() {
                 Timber.d("¥¥ fetching completed");
-                realm.close();
+                //realm.close();
             }
 
             @Override
@@ -123,7 +148,10 @@ public class TweetLoader implements Runnable {
             @Override
             public void onNext(Result result) {
                 Timber.d("¥¥ onNext "+ result.resultCode + " since: " + result.sinceId + " max: " + result.maxId);
-                if(ResultCode.ERROR.equals(result.resultCode)) return;
+                if(ResultCode.ERROR.equals(result.resultCode)) {
+                    onCompleted();
+                    return;
+                }
                 fetchMultipleTweets(result.sinceId, result.maxId);
             }
         });

@@ -19,6 +19,7 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import javax.inject.Inject;
 
+import io.realm.Realm;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
@@ -48,6 +49,8 @@ public class TopActivity extends BaseActivity {
         findViewById(R.id.button_2).setOnClickListener(
                 v -> {
                     new Thread(new TweetLoader(ThisApplication.getUserName(),-1L,-1L)).start();
+                    Realm realm = Realm.getDefaultInstance();
+
 //                    tweetShowPresenter.getTweets(713229518278828032L)
 //                            .subscribeOn(Schedulers.newThread())
 //                            .observeOn(AndroidSchedulers.mainThread())
