@@ -122,7 +122,7 @@ public class TweetLoader implements Runnable {
 
             @Override
             public void onNext(Result result) {
-                Timber.d("¥¥ onNext since " + result.sinceId + " max " + result.maxId);
+                Timber.d("¥¥ onNext "+ result.resultCode + " since: " + result.sinceId + " max: " + result.maxId);
                 if(ResultCode.ERROR.equals(result.resultCode)) return;
                 fetchMultipleTweets(result.sinceId, result.maxId);
             }
