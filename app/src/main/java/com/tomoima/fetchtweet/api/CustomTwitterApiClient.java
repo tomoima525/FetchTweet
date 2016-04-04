@@ -39,8 +39,11 @@ public class CustomTwitterApiClient extends TwitterApiClient {
     private CustomTwitterApiClient(TwitterCore twitterCore){
         super(twitterCore.getSessionManager().getActiveSession());
         Gson gson = (new GsonBuilder()).registerTypeAdapterFactory(new SafeListAdapter()).registerTypeAdapterFactory(new SafeMapAdapter()).create();
+        AuthenticatedClient client
+                = new AuthenticatedClient(twitterCore.getAuthConfig(), twitterCore.getSessionManager().getActiveSession(), twitterCore.getSSLSocketFactory());
+
         RestAdapter adapter = (new RestAdapter.Builder())
-                .setClient(new AuthenticatedClient(twitterCore.getAuthConfig(), twitterCore.getSessionManager().getActiveSession(), twitterCore.getSSLSocketFactory()))
+                .setClient(client)
                 .setEndpoint(new TwitterApi().getBaseHostUrl())
                 .setConverter(new GsonConverter(gson))
                 .setExecutors(TwitterCore.getInstance().getFabric().getExecutorService(), Executors.newFixedThreadPool(4)).build();
