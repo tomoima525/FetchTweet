@@ -2,12 +2,14 @@ package com.tomoima.fetchtweet;
 
 import android.app.Application;
 
+import com.facebook.stetho.Stetho;
 import com.tomoima.debot.DebotConfigurator;
 import com.tomoima.fetchtweet.modules.AppComponent;
 import com.tomoima.fetchtweet.modules.AppModule;
 import com.tomoima.fetchtweet.modules.DaggerAppComponent;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
@@ -26,6 +28,13 @@ public class ThisApplication extends Application {
         Fabric.with(this, new Twitter(authConfig));
         Timber.plant(new CustomTree());
         DebotConfigurator.configureWithDefault(this);
+        if (BuildConfig.DEBUG) {
+            Stetho.initialize(
+                    Stetho.newInitializerBuilder(this)
+                            .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                            .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
+                            .build());
+        }
     }
 
     private void initializeInjector(){
