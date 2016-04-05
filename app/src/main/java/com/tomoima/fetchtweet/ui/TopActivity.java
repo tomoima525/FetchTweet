@@ -17,6 +17,10 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 
 import io.realm.Realm;
@@ -28,7 +32,7 @@ public class TopActivity extends BaseActivity {
 
     @Inject
     TweetShowPresenter tweetShowPresenter;
-
+    ThreadPoolExecutor threadPoolExecutor;
     private TwitterLoginButton loginButton;
 
     @Override
@@ -37,6 +41,10 @@ public class TopActivity extends BaseActivity {
         setContentView(R.layout.activity_top);
         getAppComponent().inject(this);
 
+        //TODO: do DI
+        threadPoolExecutor =  new ThreadPoolExecutor(4, 4,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
         findViewById(R.id.button).setOnClickListener(
                 v -> {
                     tweetShowPresenter.getTweet(713229518278828032L)
@@ -48,7 +56,7 @@ public class TopActivity extends BaseActivity {
 
         findViewById(R.id.button_2).setOnClickListener(
                 v -> {
-                    new Thread(new TweetLoader(ThisApplication.getUserName(),-1L,-1L)).start();
+                    new Thread(new TweetLoader(ThisApplication.getUserName(),-1L,-1L, threadPoolExecutor)).start();
                     Realm realm = Realm.getDefaultInstance();
 
 //                    tweetShowPresenter.getTweets(713229518278828032L)

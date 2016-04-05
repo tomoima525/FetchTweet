@@ -6,6 +6,7 @@ import com.tomoima.fetchtweet.models.ResultCode;
 import com.tomoima.fetchtweet.models.TweetData;
 
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import io.realm.Realm;
 import rx.Observable;
@@ -21,11 +22,13 @@ public class TweetLoader implements Runnable {
     String userName;
     Long sinceId,maxId;
     Realm realm;
+    ThreadPoolExecutor threadPoolExecutor;
 
-    public TweetLoader(String userName, Long sinceId, Long maxId){
+    public TweetLoader(String userName, Long sinceId, Long maxId, ThreadPoolExecutor threadPoolExecutor){
         this.userName = userName;
         this.sinceId = sinceId;
         this.maxId = maxId;
+        this.threadPoolExecutor = threadPoolExecutor;
         Timber.d("¥¥ thread " + Thread.currentThread().getName());
 
     }
@@ -86,14 +89,15 @@ public class TweetLoader implements Runnable {
                                 if(isEmpty){
                                     subscriber.onCompleted();
                                 } else {
-                                    tweetDataListObservable.subscribe(tweetDataList -> {
+                                    tweetDataListObservable
+                                            .subscribeOn(Schedulers.newThread())
+                                            .observeOn(Schedulers.from(threadPoolExecutor))
+                                            .subscribe(tweetDataList -> {
                                         realm = Realm.getDefaultInstance();
-                                        Timber.d("¥¥ data" + tweetDataList.size());
-                                        Timber.d("¥¥ thread " + Thread.currentThread().getName());
+                                        Timber.d("¥¥ thread2 " + Thread.currentThread().getName());
                                         //TODO: THIS BLOCKS NETWORK THREAD, SO CREATE ANOTHTER THREAD!
                                         realm.beginTransaction();
                                         for(TweetData tweetData: tweetDataList){
-                                            System.out.println("¥¥ data" + tweetData.getMessage());
                                             TweetData data = realm.createObject(TweetData.class);
                                             data.setId(tweetData.getId());
                                             data.setMessage(tweetData.getMessage());
@@ -132,8 +136,7 @@ public class TweetLoader implements Runnable {
                     });
         });
 
-        observable.subscribeOn(Schedulers.newThread())
-                .subscribe(new Subscriber<Result>() {
+        observable.subscribe(new Subscriber<Result>() {
             @Override
             public void onCompleted() {
                 Timber.d("¥¥ fetching completed");
@@ -148,6 +151,7 @@ public class TweetLoader implements Runnable {
             @Override
             public void onNext(Result result) {
                 Timber.d("¥¥ onNext "+ result.resultCode + " since: " + result.sinceId + " max: " + result.maxId);
+                Timber.d("¥¥ thread3" + Thread.currentThread().getName());
                 if(ResultCode.ERROR.equals(result.resultCode)) {
                     onCompleted();
                     return;

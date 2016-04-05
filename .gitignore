@@ -18,6 +18,6 @@
 # the project can be imported from settings.gradle
 .idea/
 *.iml
-.idea/gradle.xml
-.idea/vcs.xml
-.idea/misc.xml
+/.idea/gradle.xml
+/.idea/vcs.xml
+/.idea/misc.xml
