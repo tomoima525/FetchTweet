@@ -12,6 +12,8 @@ import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import io.fabric.sdk.android.Fabric;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import timber.log.Timber;
 /**
  * Created by tomoaki on 3/23/16.
@@ -28,6 +30,12 @@ public class ThisApplication extends Application {
         Fabric.with(this, new Twitter(authConfig));
         Timber.plant(new CustomTree());
         DebotConfigurator.configureWithDefault(this);
+
+        RealmConfiguration config = new RealmConfiguration
+                .Builder(this)
+                .schemaVersion(0)
+                .build();
+        Realm.setDefaultConfiguration(config);
         if (BuildConfig.DEBUG) {
             Stetho.initialize(
                     Stetho.newInitializerBuilder(this)
