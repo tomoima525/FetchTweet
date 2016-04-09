@@ -61,50 +61,47 @@ public class TweetLoader implements Runnable {
             }
         });
     }
-
-
-
+    
     public void fetchAllTweets(long sinceId, long maxId) {
         Observable<Result> observable = Observable.create(subscriber -> {
-            fetchMultipleTweets(sinceId, maxId)
-                    .subscribe(new Subscriber<Observable<List<TweetData>>>() {
-                        @Override
-                        public void onCompleted() {
+            fetchMultipleTweets(sinceId, maxId).subscribe(new Subscriber<Observable<List<TweetData>>>() {
+                @Override
+                public void onCompleted() {
 
-                        }
+                }
 
-                        @Override
-                        public void onError(Throwable e) {
-                            subscriber.onError(e);
-                            subscriber.onNext(new Result(ResultCode.ERROR, e.toString(), -1, -1));
+                @Override
+                public void onError(Throwable e) {
+                    subscriber.onError(e);
+                    subscriber.onNext(new Result(ResultCode.ERROR, e.toString(), -1, -1));
+                    subscriber.onCompleted();
+                }
+
+                @Override
+                public void onNext(Observable<List<TweetData>> tweetDataListObservable) {
+                    tweetDataListObservable.isEmpty().subscribe(isEmpty -> {
+                        if (isEmpty) {
                             subscriber.onCompleted();
-                        }
+                        } else {
+                            tweetDataListObservable
+                                    .subscribeOn(Schedulers.newThread())
+                                    .observeOn(Schedulers.from(threadPoolExecutor))
+                                    .subscribe(TweetLoader::putTweetDataList);
 
-                        @Override
-                        public void onNext(Observable<List<TweetData>> tweetDataListObservable) {
-                            tweetDataListObservable.isEmpty().subscribe(isEmpty -> {
-                                if(isEmpty){
+                            //最後のid取得
+                            tweetDataListObservable.flatMap(Observable::from)
+                                    .last().subscribe(tweetData -> {
+                                long nextMaxId = tweetData.getId();
+                                if (nextMaxId == maxId) {
                                     subscriber.onCompleted();
                                 } else {
-                                    tweetDataListObservable
-                                            .subscribeOn(Schedulers.newThread())
-                                            .observeOn(Schedulers.from(threadPoolExecutor))
-                                            .subscribe(TweetLoader::putTweetDataList);
-
-                                    //最後のid取得
-                                    tweetDataListObservable.flatMap(Observable::from)
-                                            .last().subscribe(tweetData -> {
-                                        long nextMaxId = tweetData.getId();
-                                        if (nextMaxId == maxId) {
-                                            subscriber.onCompleted();
-                                        } else {
-                                            subscriber.onNext(new Result(ResultCode.SUCCESS, "", sinceId, nextMaxId));
-                                        }
-                                    });
+                                    subscriber.onNext(new Result(ResultCode.SUCCESS, "", sinceId, nextMaxId));
                                 }
                             });
                         }
                     });
+                }
+            });
         });
 
         observable.subscribe(new Subscriber<Result>() {
