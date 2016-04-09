@@ -23,8 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import io.realm.Realm;
-import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -41,47 +39,6 @@ public class TopActivity extends BaseActivity {
         setContentView(R.layout.activity_top);
         getAppComponent().inject(this);
 
-        //TODO: do DI
-        threadPoolExecutor =  new ThreadPoolExecutor(4, 4,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>());
-        findViewById(R.id.button).setOnClickListener(
-                v -> {
-                    tweetShowPresenter.getTweet(713229518278828032L)
-                            .subscribeOn(Schedulers.newThread())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(tweetData -> updateView(tweetData));
-                }
-        );
-
-        TextView dataCountTv = (TextView)findViewById(R.id.data_count);
-
-        findViewById(R.id.button_2).setOnClickListener(
-                v -> {
-                    new Thread(new TweetLoader(ThisApplication.getUserName(),-1L,-1L, threadPoolExecutor)).start();
-                }
-        );
-
-        findViewById(R.id.button_clear).setOnClickListener(
-                v-> {
-                    Realm realm = Realm.getDefaultInstance();
-                    RealmResults<TweetData> results = realm.where(TweetData.class).findAll();
-                    realm.beginTransaction();
-                    results.clear();
-                    realm.commitTransaction();
-                    realm.close();
-                }
-        );
-
-        findViewById(R.id.button_3).setOnClickListener(
-                v-> {
-                    Realm realm = Realm.getDefaultInstance();
-                    RealmResults<TweetData> results = realm.where(TweetData.class).findAll();
-                    dataCountTv.setText("size:" + results.size());
-                    realm.close();
-                }
-        );
-
         loginButton =(TwitterLoginButton) findViewById(R.id.twitter_login_button);
         loginButton.setCallback(new Callback<TwitterSession>() {
             @Override
@@ -96,11 +53,32 @@ public class TopActivity extends BaseActivity {
                 Log.d("TwitterKit", "Login with Twitter failure", e);
             }
         });
+
+        //TODO: do DI with executor
+        threadPoolExecutor =  new ThreadPoolExecutor(4, 4,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>());
+
+        findViewById(R.id.button).setOnClickListener(
+                v -> tweetShowPresenter.getTweet(20L)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(this::updateView, this::ToastError)
+        );
+
+        findViewById(R.id.button_2).setOnClickListener(
+                v -> new Thread(new TweetLoader(ThisApplication.getUserName(),-1L,-1L, threadPoolExecutor)).start()
+        );
     }
     
     public void updateView(TweetData tweetData) {
         String message = tweetData.getMessage();
-        ((TextView)findViewById(R.id.result)).setText(message);
+        String name = tweetData.getName();
+        ((TextView)findViewById(R.id.result)).setText("@" + name +": " + message);
+    }
+
+    public void ToastError(Throwable e){
+        Toast.makeText(this, "Error:" + e.getMessage(),Toast.LENGTH_LONG).show();
     }
 
     @Override
