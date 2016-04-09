@@ -24,9 +24,9 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-import timber.log.Timber;
 
 public class TopActivity extends BaseActivity {
 
@@ -54,30 +54,31 @@ public class TopActivity extends BaseActivity {
                 }
         );
 
+        TextView dataCountTv = (TextView)findViewById(R.id.data_count);
+
         findViewById(R.id.button_2).setOnClickListener(
                 v -> {
                     new Thread(new TweetLoader(ThisApplication.getUserName(),-1L,-1L, threadPoolExecutor)).start();
-                    Realm realm = Realm.getDefaultInstance();
+                }
+        );
 
-//                    tweetShowPresenter.getTweets(713229518278828032L)
-//                            .subscribeOn(Schedulers.newThread())
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .subscribe(new Subscriber<List<TweetData>>() {
-//                                @Override
-//                                public void onCompleted() {
-//                                    Timber.d("¥¥ done");
-//                                }
-//
-//                                @Override
-//                                public void onError(Throwable e) {
-//                                    Timber.d("¥¥ e " + e.getMessage());
-//                                }
-//
-//                                @Override
-//                                public void onNext(List<TweetData> tweetDatas) {
-//                                    Timber.d("¥¥ size " + tweetDatas.size());
-//                                }
-//                            });
+        findViewById(R.id.button_clear).setOnClickListener(
+                v-> {
+                    Realm realm = Realm.getDefaultInstance();
+                    RealmResults<TweetData> results = realm.where(TweetData.class).findAll();
+                    realm.beginTransaction();
+                    results.clear();
+                    realm.commitTransaction();
+                    realm.close();
+                }
+        );
+
+        findViewById(R.id.button_3).setOnClickListener(
+                v-> {
+                    Realm realm = Realm.getDefaultInstance();
+                    RealmResults<TweetData> results = realm.where(TweetData.class).findAll();
+                    dataCountTv.setText("size:" + results.size());
+                    realm.close();
                 }
         );
 
@@ -95,7 +96,6 @@ public class TopActivity extends BaseActivity {
                 Log.d("TwitterKit", "Login with Twitter failure", e);
             }
         });
-        Timber.d("¥Initialization done:" + (tweetShowPresenter != null));
     }
     
     public void updateView(TweetData tweetData) {
