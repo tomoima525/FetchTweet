@@ -7,30 +7,31 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tomoima.fetchtweet.R;
-import com.tomoima.fetchtweet.Task.TweetLoader;
 import com.tomoima.fetchtweet.ThisApplication;
 import com.tomoima.fetchtweet.models.TweetData;
 import com.tomoima.fetchtweet.presenters.TweetShowPresenter;
+import com.tomoima.fetchtweet.rx.ObserveOn;
+import com.tomoima.fetchtweet.rx.SubscribeOn;
+import com.tomoima.fetchtweet.task.TaskRunnerThread;
+import com.tomoima.fetchtweet.task.TweetLoader;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
-
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class TopActivity extends BaseActivity {
 
     @Inject
     TweetShowPresenter tweetShowPresenter;
-    ThreadPoolExecutor threadPoolExecutor;
+    @Inject
+    TaskRunnerThread taskRunnerThread;
+    @Inject
+    SubscribeOn subscribeOn;
+    @Inject
+    ObserveOn observeOn;
     private TwitterLoginButton loginButton;
 
     @Override
@@ -54,20 +55,16 @@ public class TopActivity extends BaseActivity {
             }
         });
 
-        //TODO: do DI with executor
-        threadPoolExecutor =  new ThreadPoolExecutor(4, 4,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>());
 
         findViewById(R.id.button).setOnClickListener(
                 v -> tweetShowPresenter.getTweet(20L)
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(subscribeOn.getScheduler())
+                        .observeOn(observeOn.getScheduler())
                         .subscribe(this::updateView, this::ToastError)
         );
 
         findViewById(R.id.button_2).setOnClickListener(
-                v -> new Thread(new TweetLoader(ThisApplication.getUserName(),-1L,-1L, threadPoolExecutor)).start()
+                v -> new TweetLoader(ThisApplication.getUserName(),-1L,-1L, taskRunnerThread.getThreadPoolExecutor()).run()
         );
     }
     
