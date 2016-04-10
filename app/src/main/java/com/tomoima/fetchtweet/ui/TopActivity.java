@@ -7,11 +7,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tomoima.fetchtweet.R;
-import com.tomoima.fetchtweet.task.TaskRunnerThread;
-import com.tomoima.fetchtweet.task.TweetLoader;
 import com.tomoima.fetchtweet.ThisApplication;
 import com.tomoima.fetchtweet.models.TweetData;
 import com.tomoima.fetchtweet.presenters.TweetShowPresenter;
+import com.tomoima.fetchtweet.rx.ObserveOn;
+import com.tomoima.fetchtweet.rx.SubscribeOn;
+import com.tomoima.fetchtweet.task.TaskRunnerThread;
+import com.tomoima.fetchtweet.task.TweetLoader;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
@@ -20,15 +22,16 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import javax.inject.Inject;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-
 public class TopActivity extends BaseActivity {
 
     @Inject
     TweetShowPresenter tweetShowPresenter;
     @Inject
     TaskRunnerThread taskRunnerThread;
+    @Inject
+    SubscribeOn subscribeOn;
+    @Inject
+    ObserveOn observeOn;
     private TwitterLoginButton loginButton;
 
     @Override
@@ -55,8 +58,8 @@ public class TopActivity extends BaseActivity {
 
         findViewById(R.id.button).setOnClickListener(
                 v -> tweetShowPresenter.getTweet(20L)
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(subscribeOn.getScheduler())
+                        .observeOn(observeOn.getScheduler())
                         .subscribe(this::updateView, this::ToastError)
         );
 
