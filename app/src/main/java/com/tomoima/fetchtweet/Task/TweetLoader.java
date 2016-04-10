@@ -1,4 +1,4 @@
-package com.tomoima.fetchtweet.Task;
+package com.tomoima.fetchtweet.task;
 
 import com.tomoima.fetchtweet.api.CustomTwitterApiClient;
 import com.tomoima.fetchtweet.models.Result;
@@ -22,7 +22,7 @@ public class TweetLoader implements Runnable {
     String userName;
     Long sinceId,maxId;
     static Realm realm;
-    ThreadPoolExecutor threadPoolExecutor;
+    private ThreadPoolExecutor threadPoolExecutor;
 
     public TweetLoader(String userName, Long sinceId, Long maxId, ThreadPoolExecutor threadPoolExecutor){
         this.userName = userName;
@@ -84,7 +84,6 @@ public class TweetLoader implements Runnable {
                             subscriber.onCompleted();
                         } else {
                             tweetDataListObservable
-                                    .subscribeOn(Schedulers.newThread())
                                     .observeOn(Schedulers.from(threadPoolExecutor))
                                     .subscribe(TweetLoader::putTweetDataList);
 
@@ -104,7 +103,9 @@ public class TweetLoader implements Runnable {
             });
         });
 
-        observable.subscribe(new Subscriber<Result>() {
+        observable
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(new Subscriber<Result>() {
             @Override
             public void onCompleted() {
                 Timber.d("¥¥ fetching completed");

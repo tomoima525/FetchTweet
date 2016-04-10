@@ -7,7 +7,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tomoima.fetchtweet.R;
-import com.tomoima.fetchtweet.Task.TweetLoader;
+import com.tomoima.fetchtweet.task.TaskRunnerThread;
+import com.tomoima.fetchtweet.task.TweetLoader;
 import com.tomoima.fetchtweet.ThisApplication;
 import com.tomoima.fetchtweet.models.TweetData;
 import com.tomoima.fetchtweet.presenters.TweetShowPresenter;
@@ -16,10 +17,6 @@ import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
-
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -30,7 +27,8 @@ public class TopActivity extends BaseActivity {
 
     @Inject
     TweetShowPresenter tweetShowPresenter;
-    ThreadPoolExecutor threadPoolExecutor;
+    @Inject
+    TaskRunnerThread taskRunnerThread;
     private TwitterLoginButton loginButton;
 
     @Override
@@ -54,10 +52,6 @@ public class TopActivity extends BaseActivity {
             }
         });
 
-        //TODO: do DI with executor
-        threadPoolExecutor =  new ThreadPoolExecutor(4, 4,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>());
 
         findViewById(R.id.button).setOnClickListener(
                 v -> tweetShowPresenter.getTweet(20L)
@@ -67,7 +61,7 @@ public class TopActivity extends BaseActivity {
         );
 
         findViewById(R.id.button_2).setOnClickListener(
-                v -> new Thread(new TweetLoader(ThisApplication.getUserName(),-1L,-1L, threadPoolExecutor)).start()
+                v -> new TweetLoader(ThisApplication.getUserName(),-1L,-1L, taskRunnerThread.getThreadPoolExecutor()).run()
         );
     }
     
