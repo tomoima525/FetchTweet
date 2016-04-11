@@ -1,8 +1,8 @@
 package com.tomoima.fetchtweet.task;
 
+import android.util.Pair;
+
 import com.tomoima.fetchtweet.api.CustomTwitterApiClient;
-import com.tomoima.fetchtweet.models.Result;
-import com.tomoima.fetchtweet.models.ResultCode;
 import com.tomoima.fetchtweet.models.TweetData;
 
 import java.util.List;
@@ -10,8 +10,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import io.realm.Realm;
 import rx.Observable;
-import rx.Subscriber;
-import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -61,76 +60,140 @@ public class TweetLoader implements Runnable {
             }
         });
     }
-    
-    public void fetchAllTweets(long sinceId, long maxId) {
-        Observable<Result> observable = Observable.create(subscriber -> {
-            fetchMultipleTweets(sinceId, maxId).subscribe(new Subscriber<Observable<List<TweetData>>>() {
-                @Override
-                public void onCompleted() {
 
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    subscriber.onError(e);
-                    subscriber.onNext(new Result(ResultCode.ERROR, e.toString(), -1, -1));
-                    subscriber.onCompleted();
-                }
-
-                @Override
-                public void onNext(Observable<List<TweetData>> tweetDataListObservable) {
-                    tweetDataListObservable.isEmpty().subscribe(isEmpty -> {
-                        if (isEmpty) {
-                            subscriber.onCompleted();
-                        } else {
-                            tweetDataListObservable
-                                    .observeOn(Schedulers.from(threadPoolExecutor))
-                                    .subscribe(TweetLoader::putTweetDataList);
-
-                            //最後のid取得
-                            tweetDataListObservable.flatMap(Observable::from)
-                                    .last().subscribe(tweetData -> {
-                                long nextMaxId = tweetData.getId();
-                                if (nextMaxId == maxId) {
-                                    subscriber.onCompleted();
+    public void fetchAllTweets_alpha(long sinceId, long maxId) {
+        final CustomTwitterApiClient client = CustomTwitterApiClient.getInstance();
+        //maxId を emit する Subject を用意して、そのツイートを取得するたびに、その onNext を叩く
+        final PublishSubject<Long> maxIdSubject = PublishSubject.create();
+        maxIdSubject
+                .flatMap(mid -> {
+                    final Long tempMaxId = mid == -1L ? null : mid;
+                    final Long tempSinceId = sinceId == -1L ? null : sinceId;
+                    Timber.d("¥¥ tempMaxId:" + tempMaxId );
+                    Observable<Pair<Long, List<TweetData>>> pairObservable = null;
+                    try {
+                        pairObservable
+                                = client.getCustomStatusesService()
+                                //return client.getCustomStatusesService()
+                                .userTimeline(null,
+                                        userName,
+                                        200,
+                                        tempSinceId,
+                                        tempMaxId,
+                                        false,
+                                        false,
+                                        false,
+                                        true)
+                                .flatMap(Observable::from)
+                                .map(tweet -> {
+                                    TweetData data = new TweetData();
+                                    data.setMessage(tweet.text);
+                                    data.setId(tweet.id);
+                                    data.setName(tweet.user.screenName);
+                                    return data;
+                                }).toList().map(list -> new Pair<>(tempMaxId, list));
+                        return pairObservable;
+                    }catch (Exception e){
+                        Timber.e("¥¥ pairobservable error " + e.getMessage());
+                    }
+                    return pairObservable;
+                })
+                .subscribe(
+                        p -> {
+                            TweetLoader.putTweetDataList(p.second);
+                            if (p.second.isEmpty()) {
+                                maxIdSubject.onCompleted();
+                            } else {
+                                final long nextMaxId = p.second.get(p.second.size() - 1).getId();
+                                if (nextMaxId == p.first) {
+                                    maxIdSubject.onCompleted();
                                 } else {
-                                    subscriber.onNext(new Result(ResultCode.SUCCESS, "", sinceId, nextMaxId));
+                                    maxIdSubject.onNext(nextMaxId);
                                 }
-                            });
-                        }
-                    });
-                }
-            });
-        });
-
-        observable
-                .subscribeOn(Schedulers.newThread())
-                .subscribe(new Subscriber<Result>() {
-            @Override
-            public void onCompleted() {
-                Timber.d("¥¥ fetching completed");
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Timber.e("¥¥ error " + e.getMessage());
-            }
-
-            @Override
-            public void onNext(Result result) {
-                Timber.d("¥¥ recursive thread:" + Thread.currentThread().getName());
-                if(ResultCode.ERROR.equals(result.resultCode)) {
-                    onCompleted();
-                    return;
-                }
-                fetchAllTweets(result.sinceId, result.maxId);
-            }
-        });
+                            }
+                        },
+                        e -> Timber.e("¥¥ error " + e.getMessage()),
+                        () -> Timber.d("¥¥ fetching completed")
+                        );
+        maxIdSubject.onNext(maxId);
     }
 
+//    public void fetchAllTweets(long sinceId, long maxId) {
+//        Observable<Result> observable = Observable.create(subscriber -> {
+//            fetchMultipleTweets(sinceId, maxId).subscribe(new Subscriber<Observable<List<TweetData>>>() {
+//                @Override
+//                public void onCompleted() {
+//
+//                }
+//
+//                @Override
+//                public void onError(Throwable e) {
+//                    subscriber.onError(e);
+//                    subscriber.onNext(new Result(ResultCode.ERROR, e.toString(), -1, -1));
+//                    subscriber.onCompleted();
+//                }
+//
+//                @Override
+//                public void onNext(Observable<List<TweetData>> tweetDataListObservable) {
+//                    tweetDataListObservable.isEmpty().subscribe(isEmpty -> {
+//                        if (isEmpty) {
+//                            subscriber.onCompleted();
+//                        } else {
+//                            tweetDataListObservable
+//                                    .observeOn(Schedulers.from(threadPoolExecutor))
+//                                    .subscribe(TweetLoader::putTweetDataList);
+//
+//                            //最後のid取得
+//                            tweetDataListObservable.flatMap(Observable::from)
+//                                    .last().subscribe(tweetData -> {
+//                                long nextMaxId = tweetData.getId();
+//                                if (nextMaxId == maxId) {
+//                                    subscriber.onCompleted();
+//                                } else {
+//                                    subscriber.onNext(new Result(ResultCode.SUCCESS, "", sinceId, nextMaxId));
+//                                }
+//                            });
+//                        }
+//                    });
+//                }
+//            });
+//        });
+//
+//
+//
+//        observable
+//                .subscribeOn(Schedulers.newThread())
+//                .subscribe(new Subscriber<Result>() {
+//            @Override
+//            public void onCompleted() {
+//                Timber.d("¥¥ fetching completed");
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//                Timber.e("¥¥ error " + e.getMessage());
+//            }
+//
+//            @Override
+//            public void onNext(Result result) {
+//                Timber.d("¥¥ recursive thread:" + Thread.currentThread().getName());
+//                if(ResultCode.ERROR.equals(result.resultCode)) {
+//                    onCompleted();
+//                    return;
+//                }
+//                fetchAllTweets(result.sinceId, result.maxId);
+//            }
+//        });
+//    }
+
+    public void start(){
+        threadPoolExecutor.execute(this);
+    }
     @Override
     public void run() {
-        fetchAllTweets(sinceId,maxId);
+        //fetchAllTweets(sinceId,maxId);
+        Timber.d("¥¥ start thread: " + Thread.currentThread().getName());
+        fetchAllTweets_alpha(sinceId, maxId);
     }
 
 

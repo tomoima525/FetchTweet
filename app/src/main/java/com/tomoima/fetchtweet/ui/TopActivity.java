@@ -64,7 +64,7 @@ public class TopActivity extends BaseActivity {
         );
 
         findViewById(R.id.button_2).setOnClickListener(
-                v -> new TweetLoader(ThisApplication.getUserName(),-1L,-1L, taskRunnerThread.getThreadPoolExecutor()).run()
+                v -> new TweetLoader(ThisApplication.getUserName(),-1L,-1L, taskRunnerThread.getThreadPoolExecutor()).start()
         );
     }
     
