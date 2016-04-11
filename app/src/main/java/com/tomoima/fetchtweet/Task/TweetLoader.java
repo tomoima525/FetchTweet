@@ -69,34 +69,24 @@ public class TweetLoader implements Runnable {
                 .flatMap(mid -> {
                     final Long tempMaxId = mid == -1L ? null : mid;
                     final Long tempSinceId = sinceId == -1L ? null : sinceId;
-                    Timber.d("¥¥ tempMaxId:" + tempMaxId );
-                    Observable<Pair<Long, List<TweetData>>> pairObservable = null;
-                    try {
-                        pairObservable
-                                = client.getCustomStatusesService()
-                                //return client.getCustomStatusesService()
-                                .userTimeline(null,
-                                        userName,
-                                        200,
-                                        tempSinceId,
-                                        tempMaxId,
-                                        false,
-                                        false,
-                                        false,
-                                        true)
-                                .flatMap(Observable::from)
-                                .map(tweet -> {
-                                    TweetData data = new TweetData();
-                                    data.setMessage(tweet.text);
-                                    data.setId(tweet.id);
-                                    data.setName(tweet.user.screenName);
-                                    return data;
-                                }).toList().map(list -> new Pair<>(tempMaxId, list));
-                        return pairObservable;
-                    }catch (Exception e){
-                        Timber.e("¥¥ pairobservable error " + e.getMessage());
-                    }
-                    return pairObservable;
+                    return client.getCustomStatusesService()
+                            .userTimeline(null,
+                                    userName,
+                                    200,
+                                    tempSinceId,
+                                    tempMaxId,
+                                    false,
+                                    false,
+                                    false,
+                                    true)
+                            .flatMap(Observable::from)
+                            .map(tweet -> {
+                                TweetData data = new TweetData();
+                                data.setMessage(tweet.text);
+                                data.setId(tweet.id);
+                                data.setName(tweet.user.screenName);
+                                return data;
+                            }).toList().map(list -> new Pair<>(mid, list));
                 })
                 .subscribe(
                         p -> {
@@ -112,9 +102,9 @@ public class TweetLoader implements Runnable {
                                 }
                             }
                         },
-                        e -> Timber.e("¥¥ error " + e.getMessage()),
+                        e -> Timber.e("¥¥ error " + e.toString()),
                         () -> Timber.d("¥¥ fetching completed")
-                        );
+                );
         maxIdSubject.onNext(maxId);
     }
 
