@@ -4,6 +4,7 @@ import android.util.Pair;
 
 import com.tomoima.fetchtweet.api.CustomTwitterApiClient;
 import com.tomoima.fetchtweet.models.TweetData;
+import com.tomoima.fetchtweet.rx.CrashOnError;
 
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -39,6 +40,7 @@ public class TweetLoader implements Runnable {
                 .flatMap(mid -> {
                     final Long tempMaxId = mid == -1L ? null : mid;
                     final Long tempSinceId = sinceId == -1L ? null : sinceId;
+                    tempMaxId.toString(); //always return NPE;
                     return client.getCustomStatusesService()
                             .userTimeline(null,
                                     userName,
@@ -58,6 +60,7 @@ public class TweetLoader implements Runnable {
                                 return data;
                             }).toList().map(list -> new Pair<>(mid, list));
                 })
+                .doOnError(CrashOnError.crashOnError())
                 .observeOn(Schedulers.from(threadPoolExecutor))
                 .subscribe(
                         p -> {
@@ -73,7 +76,7 @@ public class TweetLoader implements Runnable {
                                 }
                             }
                         },
-                        e -> Timber.e("¥¥ error " + e.toString()),
+                        e -> Timber.d("¥¥ error: " + e.getMessage()),
                         () -> Timber.d("¥¥ fetching completed")
                 );
         maxIdSubject.onNext(maxId);
