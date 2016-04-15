@@ -10,8 +10,7 @@ import com.tomoima.fetchtweet.R;
 import com.tomoima.fetchtweet.ThisApplication;
 import com.tomoima.fetchtweet.models.TweetData;
 import com.tomoima.fetchtweet.presenters.TweetShowPresenter;
-import com.tomoima.fetchtweet.rx.ObserveOn;
-import com.tomoima.fetchtweet.rx.SubscribeOn;
+import com.tomoima.fetchtweet.rx.SchedulersTransformer;
 import com.tomoima.fetchtweet.task.TaskRunnerThread;
 import com.tomoima.fetchtweet.task.TweetLoader;
 import com.twitter.sdk.android.core.Callback;
@@ -28,10 +27,7 @@ public class TopActivity extends BaseActivity {
     TweetShowPresenter tweetShowPresenter;
     @Inject
     TaskRunnerThread taskRunnerThread;
-    @Inject
-    SubscribeOn subscribeOn;
-    @Inject
-    ObserveOn observeOn;
+
     private TwitterLoginButton loginButton;
 
     @Override
@@ -58,8 +54,7 @@ public class TopActivity extends BaseActivity {
 
         findViewById(R.id.button).setOnClickListener(
                 v -> tweetShowPresenter.getTweet(20L)
-                        .subscribeOn(subscribeOn.getScheduler())
-                        .observeOn(observeOn.getScheduler())
+                        .compose(SchedulersTransformer.applySchedulers())
                         .subscribe(this::updateView, this::ToastError)
         );
 

@@ -41,7 +41,7 @@ public class AppModule {
     @Singleton
     @Provides
     SubscribeOn provideSubscribeOn() {
-        return () -> Schedulers.newThread();
+        return () -> Schedulers.io();
     }
 
     @Singleton

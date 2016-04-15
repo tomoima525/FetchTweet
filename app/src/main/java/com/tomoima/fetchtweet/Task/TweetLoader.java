@@ -40,7 +40,6 @@ public class TweetLoader implements Runnable {
                 .flatMap(mid -> {
                     final Long tempMaxId = mid == -1L ? null : mid;
                     final Long tempSinceId = sinceId == -1L ? null : sinceId;
-                    tempMaxId.toString(); //always return NPE;
                     return client.getCustomStatusesService()
                             .userTimeline(null,
                                     userName,
