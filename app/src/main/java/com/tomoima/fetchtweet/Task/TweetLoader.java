@@ -3,8 +3,11 @@ package com.tomoima.fetchtweet.task;
 import android.util.Pair;
 
 import com.tomoima.fetchtweet.api.CustomTwitterApiClient;
+import com.tomoima.fetchtweet.events.ProcessingEvent;
 import com.tomoima.fetchtweet.models.TweetData;
 import com.tomoima.fetchtweet.rx.CrashOnError;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -70,7 +73,9 @@ public class TweetLoader implements Runnable {
                                 final long nextMaxId = p.second.get(p.second.size() - 1).getId();
                                 if (nextMaxId == p.first) {
                                     maxIdSubject.onCompleted();
+                                    EventBus.getDefault().post(new ProcessingEvent(nextMaxId,-1,Thread.currentThread().toString()));
                                 } else {
+                                    EventBus.getDefault().post(new ProcessingEvent(nextMaxId,p.second.size(),Thread.currentThread().toString()));
                                     maxIdSubject.onNext(nextMaxId);
                                 }
                             }

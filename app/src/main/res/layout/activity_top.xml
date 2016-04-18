@@ -10,17 +10,11 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ui.TopActivity">
     <!-- todo: databinding -->
-    <TextView
-        android:id="@+id/warning"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="First sign up with twitter account"/>
 
     <com.twitter.sdk.android.core.identity.TwitterLoginButton
         android:id="@+id/twitter_login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/warning"
         android:layout_marginTop="8dp"
         />
     <Button
@@ -47,10 +41,15 @@
         android:layout_marginTop="12dp"
         android:text="get tweets"/>
 
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/button_2">
     <LinearLayout
-        android:id="@+id/thread"
+        android:id="@+id/process_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/button_2"
-        android:orientation="vertical"/>
+        android:orientation="vertical"
+        />
+    </ScrollView>
 </RelativeLayout>
