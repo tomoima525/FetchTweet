@@ -12,7 +12,6 @@ import com.twitter.sdk.android.core.models.SafeMapAdapter;
 import com.twitter.sdk.android.core.models.Tweet;
 
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
@@ -46,7 +45,7 @@ public class CustomTwitterApiClient extends TwitterApiClient {
                 .setClient(client)
                 .setEndpoint(new TwitterApi().getBaseHostUrl())
                 .setConverter(new GsonConverter(gson))
-                .setExecutors(TwitterCore.getInstance().getFabric().getExecutorService(), Executors.newFixedThreadPool(4)).build();
+                .setExecutors(TwitterCore.getInstance().getFabric().getExecutorService(), null).build();
         customFavoriteService = adapter.create(CustomFavoriteService.class);
         customStatusesService = adapter.create(CustomStatusesService.class);
     }
