@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="tweet"
+            type="com.tomoima.fetchtweet.models.TweetData"/>
+    </data>
+    <LinearLayout
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+        android:padding="4dp">
+        <TextView
+            android:id="@+id/tweet_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Test tweet text.Test tweet text."
+            android:text="@{tweet.message}"/>
+        <TextView
+            android:id="@+id/tweet_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
+            android:layout_gravity="end"
+            tools:text="04/25/2016 11:00:00"
+            android:text="@{tweet.date.toString()}"/>
+</LinearLayout>
+</layout>

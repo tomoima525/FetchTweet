@@ -56,9 +56,11 @@ public class TopActivity extends BaseActivity {
                         .subscribe(this::updateView, this::ToastError)
         );
 
-        findViewById(R.id.button_2).setOnClickListener(
+        findViewById(R.id.button_show).setOnClickListener(
                 v -> new TweetLoader(ThisApplication.getUserName(),-1L,-1L, taskRunnerThread.getThreadPoolExecutor()).start()
         );
+
+        findViewById(R.id.button_search).setOnClickListener(v -> startSearchActivity());
 
         processView = (LinearLayout) findViewById(R.id.process_view);
     }
@@ -106,6 +108,10 @@ public class TopActivity extends BaseActivity {
 
     public void ToastError(Throwable e){
         Toast.makeText(this, "Error:" + e.getMessage(),Toast.LENGTH_LONG).show();
+    }
+
+    public void startSearchActivity(){
+        startActivity(SearchActivity.createIntent(this));
     }
 
     @Override
