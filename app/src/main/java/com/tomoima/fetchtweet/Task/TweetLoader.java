@@ -6,6 +6,7 @@ import com.tomoima.fetchtweet.api.CustomTwitterApiClient;
 import com.tomoima.fetchtweet.events.ProcessingEvent;
 import com.tomoima.fetchtweet.models.TweetData;
 import com.tomoima.fetchtweet.rx.CrashOnError;
+import com.tomoima.fetchtweet.utils.DateMapperUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -59,6 +60,7 @@ public class TweetLoader implements Runnable {
                                 data.setMessage(tweet.text);
                                 data.setId(tweet.id);
                                 data.setName(tweet.user.screenName);
+                                data.setDate(DateMapperUtil.getTwitterDate(tweet.createdAt));
                                 return data;
                             }).toList().map(list -> new Pair<>(mid, list));
                 })
