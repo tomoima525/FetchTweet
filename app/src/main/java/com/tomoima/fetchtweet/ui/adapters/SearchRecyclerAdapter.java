@@ -14,15 +14,17 @@ import com.tomoima.fetchtweet.models.TweetData;
 
 import co.moonmonkeylabs.realmsearchview.RealmSearchAdapter;
 import co.moonmonkeylabs.realmsearchview.RealmSearchViewHolder;
+import io.realm.Case;
 import io.realm.Realm;
+import io.realm.Sort;
 
 /**
  * Created by tomoaki on 4/26/16.
  */
 public class SearchRecyclerAdapter extends RealmSearchAdapter<TweetData, SearchRecyclerAdapter.ViewHolder> {
 
-    public SearchRecyclerAdapter(@NonNull Context context, @NonNull Realm realm, @NonNull String filterKey) {
-        super(context, realm, filterKey);
+    public SearchRecyclerAdapter(@NonNull Context context, @NonNull Realm realm, @NonNull String filterKey, @NonNull String sortKey) {
+        super(context, realm, filterKey, true, Case.INSENSITIVE, Sort.DESCENDING, sortKey, (String) null);
     }
 
     @Override

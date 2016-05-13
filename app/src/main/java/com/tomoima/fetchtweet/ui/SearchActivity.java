@@ -29,7 +29,7 @@ public class SearchActivity extends BaseActivity {
         setContentView(R.layout.activity_search);
         RealmSearchView realmSearchView = (RealmSearchView) findViewById(R.id.search_view);
         realm = Realm.getDefaultInstance();
-        RealmSearchAdapter adapter = new SearchRecyclerAdapter(this, realm, "message");
+        RealmSearchAdapter adapter = new SearchRecyclerAdapter(this, realm, "message", "date");
         realmSearchView.setAdapter(adapter);
     }
 
